@@ -44,7 +44,7 @@ if (navigator.geolocation)
       // L = a namespace and has few methods like map()
       //'map' = an element in HTML
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
         attribution:
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(map);
@@ -53,6 +53,27 @@ if (navigator.geolocation)
         .addTo(map)
         .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
         .openPopup();
+
+      //similar to addEventHAndler -> in leaflet we use .on
+      map.on('click', function (mapEvent) {
+        console.log(mapEvent); //this event happens every time we click on map
+        const { lat, lng } = mapEvent.latlng;
+
+        L.marker([lat, lng])
+          .addTo(map)
+          .bindPopup(
+            L.popup({
+              maxWidth: 250,
+              minWidth: 100,
+              autoClose: false,
+              closeOnClick: false,
+              className: 'running-popup',
+            })
+          )
+          .setPopupContent('Workout')
+          .openPopup(); //read leaflet documentation to customize popup
+        //color to popups are defined in CSS file
+      });
     },
     function () {
       alert('Could not get your position');
