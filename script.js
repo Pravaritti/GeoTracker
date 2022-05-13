@@ -23,6 +23,8 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
+/////////////////////////////////////////////////////////////////////
+
 //geolocation API is actually a browser API that the browser gives us like timer and other APIs
 //it takes 2 callback functions 1. success callback(when it gets coordinates successfully) 2. error callback
 if (navigator.geolocation)
@@ -34,8 +36,26 @@ if (navigator.geolocation)
       console.log(latitude, longitude);
       //checking it on google maps
       console.log(`https://www.google.co.in/maps/@${latitude},${longitude}`);
+
+      const coords = [latitude, longitude];
+
+      //from leaflet.com -> overview
+      const map = L.map('map').setView(coords, 13);
+      // L = a namespace and has few methods like map()
+      //'map' = an element in HTML
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
+
+      L.marker(coords)
+        .addTo(map)
+        .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+        .openPopup();
     },
     function () {
       alert('Could not get your position');
     }
   );
+//display map using 3rd party library - leaflet(an open source JS library for mobile friendly interations)
