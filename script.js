@@ -25,6 +25,53 @@ const inputElevation = document.querySelector('.form__input--elevation');
 
 /////////////////////////////////////////////////////////////////////
 
+class Workout {
+  date = new Date();
+  id = (Date.now() + '').slice(-10); // change date into string and take last 10 numbers
+
+  constructor(coords, distance, duration) {
+    //we give construtor parameters so that user has some control over how the object is made
+
+    this.coords = coords; //[lat, lng]
+    this.distance = distance; //in kms
+    this.duration = duration; //in mins
+  }
+}
+
+class Running extends Workout {
+  constructor(coords, distance, duration, cadence) {
+    //should have same constructor parameters + addition
+    super(coords, distance, duration); //super class to the common parameters
+    this.cadence = cadence; //initialise new parameter
+
+    //call calcPace function inside constructor to immideately calcualte Pace
+    this.calcPace();
+  }
+  calcPace() {
+    //min/km
+    this.pace = this.duration / this.distance;
+    return this.pace;
+  }
+}
+
+class Cycling extends Workout {
+  constructor(coords, distance, duration, elevationGain) {
+    super(coords, distance, duration);
+    this.elevationGain = elevationGain;
+  }
+  calcSpeed() {
+    // km/hr
+    this.speed = this.distance / (this.duration / 60);
+    return this.speed;
+  }
+}
+
+const run1 = new Running([39, -12], 5.2, 24, 178);
+const cycle1 = new Cycling([39, -12], 5.2, 24, 178);
+console.log(run1, cycle1);
+
+///////////////////////////////////////////////////////////// APPLICATION ARCHITECTURE
+
 class App {
   #map; //private properties of App class
   #mapEvent;
