@@ -86,6 +86,7 @@ const inputElevation = document.querySelector('.form__input--elevation');
 class App {
   #map; //private properties of App class
   #mapEvent;
+  #mapZoomLevel = 13;
   #workouts = [];
 
   constructor() {
@@ -99,6 +100,10 @@ class App {
     );
 
     inputType.addEventListener('change', this._toggleElevationField);
+
+    //move to marker on click //using event delegation
+    // adding this property to workout class instead of running and cycling separately
+    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
   }
 
   _getPosition() {
@@ -125,7 +130,7 @@ class App {
     const coords = [latitude, longitude];
 
     //from leaflet.com -> overview
-    this.#map = L.map('map').setView(coords, 13);
+    this.#map = L.map('map').setView(coords, this.#mapZoomLevel);
     // L = a namespace and has few methods like map()
     //'map' = an element in HTML
 
@@ -292,6 +297,31 @@ class App {
   `;
 
     form.insertAdjacentHTML('afterend', html);
+  }
+
+  _moveToPopup(e) {
+    const workoutEl = e.target.closest('.workout');
+    console.log(workoutEl);
+
+    if (!workoutEl) return; //guard clause
+
+    //to find
+    const workout = this.#workouts.find(
+      work => work.id === workoutEl.dataset.id
+    );
+
+    console.log(workout);
+
+    //method in leaflet to move map to a certain point
+    this.#map.setView(workout.coords, this.#mapZoomLevel, {
+      animate: true,
+
+      //duration of animation
+      pan: {
+        duration: 1,
+      },
+    });
+    // setView(coordinates, zoom level ,object of options)
   }
 }
 
