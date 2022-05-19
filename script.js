@@ -90,8 +90,13 @@ class App {
   #workouts = [];
 
   constructor() {
+    //Get user's position
     this._getPosition(); // so that this function is called as soon as this constructor is called i.e when object is made i.e when page is loaded
 
+    //Get data from local storage
+    this._getLocalStorage();
+
+    //Attach event handlers
     //we need these event listeners to be acticated right in the beginning (as soon as the map loads)
     //render form
     form.addEventListener(
@@ -140,6 +145,11 @@ class App {
     }).addTo(this.#map);
 
     this.#map.on('click', this._showForm.bind(this));
+
+    //putting markers of the previous data from local storage
+    this.#workouts.forEach(work => {
+      this._renderWorkoutMarker(work);
+    });
   }
 
   _showForm(mapE) {
@@ -225,6 +235,9 @@ class App {
 
     //hide form + Clear input fields
     this._hideForm();
+
+    //Set local storage to all workouts
+    this._setLocalStorage();
   }
 
   _renderWorkoutMarker(workout) {
@@ -243,7 +256,10 @@ class App {
         `${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'} ${workout.description}`
       )
       .openPopup(); //read leaflet documentation to customize popup
-    //     //color to popups are defined in CSS file
+    //color to popups are defined in CSS file
+
+    // Set local storage to all workouts
+    this._setLocalStorage();
   }
 
   _renderWorkout(workout) {
@@ -323,12 +339,57 @@ class App {
     });
     // setView(coordinates, zoom level ,object of options)
   }
+
+  ////local storage
+  //using local storage API in order to make the workout data persists across multiple page reloads.
+  //idea = whenever a new workout is added, all the workouts will be added to local storage
+  //local storage = a place in browser where we canstore data that will stay there even after we close the page.So data is basically linked to URL on which we are using the application.
+  //to check go to application tab in browser inspect and clock on local storage
+  _setLocalStorage() {
+    //storing all the workouts inlocal storage (it should be done for very small data because local storage is BLOCKING) else it will slow down your application
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+    //parameters =(key, value) pair which both need to be strings
+    //we can convert an object into string using JSON.stringify()
+  }
+
+  //to display previous data on the application
+  _getLocalStorage() {
+    const data0 = localStorage.getItem('workouts');
+    console.log(data0); //a big string
+    //convert this string into object again
+    const data = JSON.parse(localStorage.getItem('workouts'));
+    console.log(data);
+
+    if (!data) return; //guard clause
+
+    this.#workouts = data;
+
+    //data = our array of workouts
+    //restore our workouts array
+    //lets take all workouts array and render them inthe list.
+    this.#workouts.forEach(work => {
+      this._renderWorkout(work);
+    });
+  }
+
+  //first public method of this class
+  //to clear local storage data
+  reset() {
+    localStorage.removeItem('workouts');
+    //reload page
+    location.reload();
+    //location is a big object that has a lot of properties and methods
+  }
 }
 
 //Creating object (using constructor)
 const app = new App();
+//to clear local storage data, do->
+//app.reset() //in console
 
 /////////////////////////////////////////////////
-//using class for better architecture
-// class WORKOUT -> child RUNNING
-//////////////// -> child CYCLING
+// NOTE:
+// When we store an object in local storage -> it is stored as string. Basically (key, value) pair
+// When we get it back from local storage, the object is now a simple object and loses many of its properties and functions and all of its prototypal inheritence
+// why?
+// Because when we convert object to string, it becomes JSON and JSON has no inheritance. its pretty much key value pair. No functions. No recursive references
